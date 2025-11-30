@@ -25,35 +25,44 @@ Each agent has access to Google Search to research and enrich the ideas.
 
 - Python 3.10 or higher
 - Google ADK (Agent Development Kit)
-- Model: Gemini 2.5 Flash
+- Streamlit
 - Google AI API Key (get one at [Google AI Studio](https://aistudio.google.com/app/apikey))
 
 ### Installation
 
-1. Install dependencies:
+1. Clone or download this project
+
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Set up your Google API key:
-```bash
-# Option 1: Set environment variable
-export GOOGLE_API_KEY="your-api-key-here"
-
-# Option 2: Enter it in the Streamlit UI sidebar
-```
-
 ### Running the App
 
-Start the Streamlit application:
+1. Start the Streamlit application:
 ```bash
 streamlit run agent.py
 ```
 
-Then open your browser to `http://localhost:8501` and enter your API key in the sidebar if you haven't set it as an environment variable.
+2. Open your browser to `http://localhost:8501`
 
-### Example requests
+3. Enter your Google API Key in the sidebar Configuration section
 
+4. Start creating fantasy characters!
+
+### Using the Interface
+
+- **API Key**: Enter your Google AI API key in the sidebar (required for first use in each session)
+- **Chat Input**: Describe the character you want to create in the text box at the bottom
+- **Clear Chat**: Click the "Clear Chat" button in the sidebar to start a new conversation
+- **Example Prompts**: Check the sidebar for inspiration
+
+### Example Prompts
+
+- "Create a mysterious elven rogue with a dark past"
+- "I need a powerful wizard character for D&D"
+- "Design a noble knight with a tragic backstory"
+- "Generate a chaotic villain for a fantasy campaign"
 - "I need an elven warrior character with a tragic backstory"
 - "Create a villain for a medieval fantasy story"
 - "Design a mage with unique time-control abilities"
