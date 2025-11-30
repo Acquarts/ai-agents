@@ -1,69 +1,44 @@
-# Character Designer Agent
+# 🤖 AI Agents
 
-AI agent that generates and refines creative and innovative fantasy character ideas.
+A collection of AI agents built with Google ADK, LangChain, and modern agentic tools.
 
-## What does it do?
+## Projects
 
-This multi-agent system coordinates a two-tier process to create unique fantasy characters:
-- Generates initial character ideas based on your preferences
-- Refines and improves the ideas, selecting the most interesting ones
-- Delivers detailed and engaging character concepts
+| Agent | Description | Stack |
+|-------|-------------|-------|
+| `character_designer` | Multi-agent system for creating fantasy characters | Google ADK, Gemini |
+| *more coming soon...* | | |
 
-## How does it work?
+## Tech Stack
 
-The system uses three specialized agents working in sequence:
+- **Google ADK** — multi-agent orchestration
+- **LangChain** — RAG pipelines and chains
+- **Gemini / GPT / Claude** — LLMs
+- **FastAPI** — production APIs
+- **Pinecone** — vector databases
 
-1. **IdeaAgent**: Generates innovative fantasy character ideas based on your request
-2. **RefinerAgent**: Reviews generated ideas, improves them, and selects the best one
-3. **CharacterDesignerAgent** (root): Coordinates the other agents ensuring proper workflow
+## Quickstart
 
-Each agent has access to Google Search to research and enrich the ideas.
-
-## How to use it?
-
-### Requirements
-
-- Python 3.10 or higher
-- Google ADK (Agent Development Kit)
-- Model: Gemini 2.5 Flash
-- Google AI API Key (get one at [Google AI Studio](https://aistudio.google.com/app/apikey))
-
-### Installation
-
-1. Install dependencies:
 ```bash
+# Clone
+git clone https://github.com/Acquarts/ai-agents.git
+cd ai-agents
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Set up API keys
+cp .env.example .env
+
+# Run
+adk web
 ```
 
-2. Set up your Google API key:
-```bash
-# Option 1: Set environment variable
-export GOOGLE_API_KEY="your-api-key-here"
+## Contact
 
-# Option 2: Enter it in the Streamlit UI sidebar
-```
+- 🌐 [azafuture.com](https://www.azafuture.com)
+- 💼 [LinkedIn](https://linkedin.com/in/adrianzambranaacquaroni)
 
-### Running the App
+---
 
-Start the Streamlit application:
-```bash
-streamlit run agent.py
-```
-
-Then open your browser to `http://localhost:8501` and enter your API key in the sidebar if you haven't set it as an environment variable.
-
-### Example requests
-
-- "I need an elven warrior character with a tragic backstory"
-- "Create a villain for a medieval fantasy story"
-- "Design a mage with unique time-control abilities"
-
-## Architecture
-
-```
-CharacterDesignerAgent (root)
-    ├── IdeaAgent
-    └── RefinerAgent
-```
-
-The root agent coordinates the workflow, ensuring each request flows through idea generation first, then refinement, before delivering the final result.
+*Building agents that actually work.* 🚀
