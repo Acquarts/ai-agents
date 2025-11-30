@@ -1,0 +1,9 @@
+# Google Agent Development Kit
+google-adk
+google-genai
+
+# Required for Google Search tool
+google-search-results
+
+# Streamlit for web UI
+streamlit
