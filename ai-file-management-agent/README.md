@@ -1,4 +1,4 @@
-# File Management Agent
+📂# File Management Agent
 
 Conversational Python agent that enables file system interaction through natural language. Uses the OpenAI API to process commands and execute file reading, writing, and editing operations.
 
