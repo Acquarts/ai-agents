@@ -1,6 +1,6 @@
 # 🤖 AI Agents
 
-A hands-on repository exploring the world of AI agents — from simple single-agent setups to complex multi-agent orchestrations.
+A hands-on repository exploring the world of AI agents, from simple single-agent setups to complex multi-agent orchestrations.
 
 ## What Are AI Agents?
 
