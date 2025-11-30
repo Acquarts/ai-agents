@@ -1,4 +1,4 @@
-# Character Designer Agent
+# 🐱‍🚀 Character Designer Agent
 
 AI agent that generates and refines creative and innovative fantasy character ideas.
 
