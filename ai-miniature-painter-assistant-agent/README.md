@@ -9,7 +9,7 @@ Upload a photo of your unpainted miniature and get:
 - **Color Scheme Suggestions**: 3 creative color schemes with specific paint recommendations (Citadel, Vallejo, Army Painter)
 - **Time Estimation**: Painting time estimates for Beginner, Intermediate, and Advanced skill levels
 - **Budget Calculator**: Complete paint budget breakdown including base colors, shades, highlights, and special effects
-- **AI-Generated Painted Renders**: Real photorealistic renders of your miniature painted with each color scheme using Imagen 3
+- **AI-Generated Painted Renders**: Photorealistic renders of your miniature painted with each color scheme using Gemini 2.5 Flash Image
 
 ## 🤖 How does it work?
 
@@ -38,7 +38,7 @@ Each agent has access to Google Search to provide up-to-date paint recommendatio
 
 2. **Install dependencies:**
 ```bash
-cd miniature_painter_agent
+cd my_agent
 pip install -r requirements.txt
 ```
 
@@ -86,7 +86,7 @@ streamlit run agent.py
    - Custom Dark Green with Bronze
 3. Get time estimate: Beginner (8-12 hours), Advanced (4-6 hours)
 4. See budget breakdown: $25-35 for complete paint set
-5. **Generate AI Renders**: Click buttons to generate photorealistic painted versions with each color scheme using Google Imagen 3
+5. **Generate AI Renders**: Click buttons to generate photorealistic painted versions with each color scheme using Gemini 2.5 Flash Image
 
 ## 🏗️ Architecture
 
@@ -102,7 +102,7 @@ The root agent coordinates the workflow, ensuring each request flows through col
 ## 🛠️ Technical Details
 
 - **Analysis Model**: Google Gemini 2.5 Flash (multimodal)
-- **Image Generation**: Google Imagen 3 (generate-001)
+- **Image Generation**: Google Gemini 2.5 Flash Image
 - **Framework**: Google ADK (Agent Development Kit)
 - **UI Framework**: Streamlit
 - **Image Processing**: Pillow (PIL)
@@ -144,11 +144,11 @@ The root agent coordinates the workflow, ensuring each request flows through col
 
 ## 📝 Notes
 
-- **Image Generation**: Uses Google Imagen 3 to generate photorealistic painted miniature renders. Each render takes 30-60 seconds to generate.
+- **Image Generation**: Uses Gemini 2.5 Flash Image to generate photorealistic painted miniature renders. Each render takes 30-60 seconds to generate.
 - **Paint Prices**: Budget estimates are approximate and may vary by region and retailer
 - **Time Estimates**: Actual painting time varies based on individual skill and techniques used
 - **Paint Brands**: Recommendations include Citadel, Vallejo, and Army Painter brands
-- **API Requirements**: Requires Google AI API key with access to both Gemini 2.5 Flash and Imagen 3
+- **API Requirements**: Requires Google AI API key with access to both Gemini 2.5 Flash and Gemini 2.5 Flash Image
 
 ## 🚀 Future Enhancements
 
