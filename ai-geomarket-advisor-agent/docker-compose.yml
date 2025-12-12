@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  geomarket_advisor_runtime:
+    build: ./geomarket_advisor_runtime
+    container_name: geomarket_advisor_runtime
+    ports:
+      - "8000:8000"
+    env_file:
+      - geomarket_advisor_runtime/.env
+
+  geomarket_advisor_ui:
+    build: ./geomarket_advisor_ui
+    container_name: geomarket_advisor_ui
+    ports:
+      - "8501:8501"
+    depends_on:
+      - geomarket_advisor_runtime
+
