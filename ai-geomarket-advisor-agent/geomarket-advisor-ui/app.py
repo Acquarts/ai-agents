@@ -1,6 +1,9 @@
 import streamlit as st
 import requests
 import uuid
+import os
+
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000").rstrip("/")
 
 st.set_page_config(page_title="GeoMarket Advisor", layout="centered")
 
@@ -27,7 +30,7 @@ if analyze and business_type and city:
     }
 
     resp = requests.post(
-        "http://geomarket_advisor_runtime:8000/run",
+        f"{BACKEND_URL}/run",
         json=payload,
         timeout=120
     )
