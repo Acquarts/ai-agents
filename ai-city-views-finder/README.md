@@ -205,14 +205,12 @@ ai-city-views-finder/
 ├── test_agent.py                # Local testing script
 ├── streamlit_app.py             # Streamlit frontend for Cloud Run
 ├── requirements.txt             # Dependencies for local development
-├── requirements_cloudrun.txt    # Dependencies for Cloud Run
 ├── Dockerfile                   # Container configuration
 ├── .dockerignore               # Files excluded from build
 ├── deploy_cloudrun.bat         # Deployment script (Windows)
 ├── deploy_cloudrun.sh          # Deployment script (Linux/Mac)
 ├── monitoring_config.yaml      # Monitoring configuration
 ├── README.md                   # This file
-└── README_CLOUDRUN.md          # Detailed Cloud Run guide
 ```
 
 ## Agent Evaluation Criteria
