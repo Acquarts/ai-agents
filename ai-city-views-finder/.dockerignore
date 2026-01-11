@@ -1,0 +1,64 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+.venv/
+virtualenv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Deployment scripts (not needed in container)
+deploy_agent.py
+test_agent.py
+deploy_cloudrun.sh
+deploy_cloudrun.bat
+
+# Documentation
+README.md
+*.md
+
+# Monitoring config (deployed separately)
+monitoring_config.yaml
+
+# Local environment files
+.env.local
+.env.development
+
+# Temporary files
+tmp/
+temp/
+*.tmp

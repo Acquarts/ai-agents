@@ -1,0 +1,176 @@
+# Cloud Monitoring Configuration for City Views Finder
+# This file defines monitoring dashboards and alerts for Cloud Run
+
+# Log-based Metrics
+logMetrics:
+  # User queries metric
+  - name: user_queries_total
+    description: Total number of user queries
+    filter: |
+      resource.type="cloud_run_revision"
+      jsonPayload.event="user_query"
+    metricDescriptor:
+      metricKind: DELTA
+      valueType: INT64
+      unit: "1"
+
+  # Agent responses metric
+  - name: agent_responses_total
+    description: Total number of agent responses
+    filter: |
+      resource.type="cloud_run_revision"
+      jsonPayload.event="agent_response"
+    metricDescriptor:
+      metricKind: DELTA
+      valueType: INT64
+      unit: "1"
+
+  # Response time metric
+  - name: response_time_seconds
+    description: Agent response time in seconds
+    filter: |
+      resource.type="cloud_run_revision"
+      jsonPayload.event="agent_response"
+    valueExtractor: EXTRACT(jsonPayload.response_time_seconds)
+    metricDescriptor:
+      metricKind: DELTA
+      valueType: DOUBLE
+      unit: "s"
+
+  # Error metric
+  - name: errors_total
+    description: Total number of errors
+    filter: |
+      resource.type="cloud_run_revision"
+      jsonPayload.event="error"
+    metricDescriptor:
+      metricKind: DELTA
+      valueType: INT64
+      unit: "1"
+
+# Alert Policies
+alertPolicies:
+  # High error rate alert
+  - displayName: High Error Rate
+    conditions:
+      - displayName: Error rate > 10 per minute
+        conditionThreshold:
+          filter: |
+            metric.type="logging.googleapis.com/user/errors_total"
+            resource.type="cloud_run_revision"
+          comparison: COMPARISON_GT
+          thresholdValue: 10
+          duration: 60s
+          aggregations:
+            - alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_RATE
+
+  # High response time alert
+  - displayName: High Response Time
+    conditions:
+      - displayName: Response time > 30 seconds
+        conditionThreshold:
+          filter: |
+            metric.type="logging.googleapis.com/user/response_time_seconds"
+            resource.type="cloud_run_revision"
+          comparison: COMPARISON_GT
+          thresholdValue: 30
+          duration: 300s
+          aggregations:
+            - alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_MEAN
+
+  # Low request rate alert (service down)
+  - displayName: Low Request Rate
+    conditions:
+      - displayName: Request rate < 0.01 per minute (possible downtime)
+        conditionThreshold:
+          filter: |
+            metric.type="logging.googleapis.com/user/user_queries_total"
+            resource.type="cloud_run_revision"
+          comparison: COMPARISON_LT
+          thresholdValue: 0.01
+          duration: 600s
+          aggregations:
+            - alignmentPeriod: 60s
+              perSeriesAligner: ALIGN_RATE
+
+# Dashboard Configuration
+dashboard:
+  displayName: City Views Finder - Streamlit Dashboard
+  widgets:
+    # Request count over time
+    - title: User Queries Over Time
+      xyChart:
+        dataSets:
+          - timeSeriesQuery:
+              timeSeriesFilter:
+                filter: |
+                  metric.type="logging.googleapis.com/user/user_queries_total"
+                  resource.type="cloud_run_revision"
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_RATE
+
+    # Response time distribution
+    - title: Response Time Distribution
+      xyChart:
+        dataSets:
+          - timeSeriesQuery:
+              timeSeriesFilter:
+                filter: |
+                  metric.type="logging.googleapis.com/user/response_time_seconds"
+                  resource.type="cloud_run_revision"
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_MEAN
+
+    # Error rate
+    - title: Error Rate
+      xyChart:
+        dataSets:
+          - timeSeriesQuery:
+              timeSeriesFilter:
+                filter: |
+                  metric.type="logging.googleapis.com/user/errors_total"
+                  resource.type="cloud_run_revision"
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_RATE
+
+    # Cloud Run metrics
+    - title: Cloud Run Request Count
+      xyChart:
+        dataSets:
+          - timeSeriesQuery:
+              timeSeriesFilter:
+                filter: |
+                  metric.type="run.googleapis.com/request_count"
+                  resource.type="cloud_run_revision"
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_RATE
+
+    - title: Cloud Run Memory Usage
+      xyChart:
+        dataSets:
+          - timeSeriesQuery:
+              timeSeriesFilter:
+                filter: |
+                  metric.type="run.googleapis.com/container/memory/utilizations"
+                  resource.type="cloud_run_revision"
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_MEAN
+
+    - title: Cloud Run CPU Usage
+      xyChart:
+        dataSets:
+          - timeSeriesQuery:
+              timeSeriesFilter:
+                filter: |
+                  metric.type="run.googleapis.com/container/cpu/utilizations"
+                  resource.type="cloud_run_revision"
+                aggregation:
+                  alignmentPeriod: 60s
+                  perSeriesAligner: ALIGN_MEAN
