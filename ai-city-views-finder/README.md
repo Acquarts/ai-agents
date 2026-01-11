@@ -41,7 +41,42 @@ The agent uses real-time web searches and content analysis to provide high-quali
 - **Monitoring**: Cloud Logging and Cloud Monitoring integration
 - **Containerization**: Docker
 
-## 🏗️ Architecture
+## 🚢 Deployment Architecture
+
+This project uses **two separate deployments** working together:
+
+### 1. **Vertex AI Agent Engine** (Backend - AI Brain 🤖)
+- **What**: The intelligent agent that processes queries
+- **Where**: Vertex AI Agent Engine on Google Cloud
+- **Deploy with**: `python deploy_agent.py`
+- **Does**:
+  - Processes user queries intelligently
+  - Uses Google Search Tool for web searches
+  - Uses URL Context Tool for content analysis
+  - Generates personalized recommendations
+- **Cost**: Pay-per-use based on model calls and tokens
+
+### 2. **Cloud Run** (Frontend - Web Interface 🌐)
+- **What**: The Streamlit web interface users interact with
+- **Where**: Google Cloud Run (serverless container platform)
+- **Deploy with**: `deploy_cloudrun.bat` or `deploy_cloudrun.sh`
+- **Does**:
+  - Displays conversational interface
+  - Manages user sessions
+  - Connects to the agent in Vertex AI
+  - Streams responses in real-time
+- **Public URL**: https://city-views-finder-562289298058.us-central1.run.app
+- **Cost**: Pay-per-use based on CPU/memory usage
+
+### Flow Diagram
+
+```
+User → Cloud Run (Streamlit) → Vertex AI (Agent) → Response
+```
+
+**Note**: This project does NOT use Streamlit Cloud. Instead, it uses Docker to containerize the Streamlit app and deploys it to Cloud Run for better control, scalability, and integration with Google Cloud services.
+
+## 🏗️ System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -288,7 +323,18 @@ Here are the best panoramic routes around San Sebastián:
 
 ## 📊 Monitoring and Logs
 
-### View Real-Time Logs
+This project has **two separate monitoring systems** for each deployment:
+
+### 🌐 Cloud Run Monitoring (Frontend)
+
+Monitors the **Streamlit application and infrastructure**.
+
+#### What it tracks:
+- **Container Performance**: CPU, memory usage, active instances, cold starts
+- **Web Traffic**: Requests/second, HTTP status codes, response latency
+- **Custom Application Logs**: User queries, response times, errors
+
+#### View Logs:
 
 ```bash
 # Cloud Run service logs
@@ -296,9 +342,12 @@ gcloud run services logs read city-views-finder --region us-central1 --limit 50
 
 # Follow logs in real-time
 gcloud run services logs tail city-views-finder --region us-central1
+
+# Or in the console:
+# https://console.cloud.google.com/run/detail/us-central1/city-views-finder
 ```
 
-### Useful Cloud Logging Queries
+#### Useful Cloud Logging Queries
 
 **View all user queries:**
 ```
@@ -319,13 +368,69 @@ jsonPayload.event="agent_response"
 jsonPayload.response_time_seconds>10
 ```
 
-### Available Metrics
-
+#### Available Metrics:
 - 📈 Total user queries
 - ⏱️ Average response time
 - ❌ Error rate
 - 💾 Memory and CPU usage
 - 🖥️ Number of active instances
+
+#### Answers:
+- ✅ Is the app running?
+- ⚡ Is the interface responsive?
+- 🔍 Are there Streamlit errors?
+- 👥 How many users are connected?
+
+---
+
+### 🤖 Vertex AI Monitoring (Backend)
+
+Monitors the **AI agent and its operations**.
+
+#### What it tracks:
+- **Model Usage**: Number of calls to Gemini, tokens consumed (input/output), cost per call
+- **Agent Performance**: Inference latency, processing time, success/failure rate
+- **Tool Usage**: Google Search calls, URL Context calls, tool failures
+- **Agent Content**: Queries received, responses generated, reasoning errors
+
+#### View Logs:
+
+```bash
+# Vertex AI console
+# https://console.cloud.google.com/vertex-ai/reasoning-engines
+
+# Or via API
+gcloud ai reasoning-engines describe AGENT_ID --region=us-central1
+```
+
+#### Available Metrics:
+- 💰 Tokens consumed per query
+- 🔧 Tool usage frequency
+- 🎯 Response quality
+- 💸 Cost per interaction
+
+#### Answers:
+- 🧠 Is the agent reasoning correctly?
+- 💵 How much does each query cost?
+- 🛠️ Are the tools (Google Search, URL Context) working?
+- ❌ Are there logic errors in the agent?
+
+---
+
+### 🔍 Monitoring Comparison
+
+| Aspect | Cloud Run | Vertex AI |
+|--------|-----------|-----------|
+| **Monitors** | Frontend/Infrastructure | AI Agent/Model |
+| **Key Metrics** | HTTP, CPU, memory | Tokens, calls, tools |
+| **Logs** | Streamlit application | Agent reasoning |
+| **Cost Driver** | Compute resources | Model tokens |
+| **Key Question** | Is the app working? | Is the agent smart? |
+
+**Example Investigation**: If users report "slow responses":
+1. **Check Cloud Run**: See response times in logs → 15 seconds average
+2. **Check Vertex AI**: Agent makes 10 Google searches per query, each takes 1.5s
+3. **Solution**: Optimize agent to make fewer searches
 
 ## 🔄 Updating the Service
 
