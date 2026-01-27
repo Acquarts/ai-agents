@@ -2,6 +2,8 @@
 
 AI-powered multi-agent system that helps you plan and visualize your miniature painting projects with color schemes, time estimates, and budget calculations.
 
+Live Demo: https://ai-miniature-painter-assistant-agent.streamlit.app/
+
 ## ✨ What does it do?
 
 Upload a photo of your unpainted miniature and get:
