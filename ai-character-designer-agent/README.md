@@ -2,6 +2,8 @@
 
 AI agent that generates and refines creative and innovative fantasy character ideas.
 
+Live Agent: https://ai-character-designer-agent.streamlit.app/
+
 ## What does it do?
 
 This multi-agent system coordinates a two-tier process to create unique fantasy characters:
