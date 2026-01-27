@@ -2,6 +2,8 @@
 
 AI-powered business location analysis using Google Maps and Gemini AI to help entrepreneurs find the best locations for their businesses.
 
+Live Demo: https://geomarket-advisor-frontend.up.railway.app/
+
 ## Overview
 
 GeoMarket Advisor is an intelligent agent that analyzes cities using Google Maps data to identify optimal locations for establishing specific types of businesses. It evaluates factors such as competition density, customer flow potential, nearby points of interest, and overall commercial suitability.
