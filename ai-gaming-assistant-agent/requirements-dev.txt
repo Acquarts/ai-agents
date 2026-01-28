@@ -11,3 +11,7 @@ mypy>=1.9.0
 
 # Type stubs
 types-requests>=2.31.0
+
+# Security
+bandit>=1.7.0
+pip-audit>=2.7.0

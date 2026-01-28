@@ -39,8 +39,27 @@ jobs:
           ruff check .
           ruff format --check .
 
+      - name: Type check with mypy
+        run: |
+          mypy my_agent/ app/ --ignore-missing-imports
+
+      - name: Security scan with bandit
+        run: |
+          bandit -r my_agent/ app/ -f json -o bandit-report.json --exit-zero
+          bandit -r my_agent/ app/ -ll
+
+      - name: Dependency audit
+        run: |
+          pip-audit --strict --desc on 2>&1 || true
+
       - name: Run tests
         env:
           GOOGLE_GENAI_USE_VERTEXAI: "False"
         run: |
-          pytest tests/ -v
+          pytest tests/ -v --cov=my_agent --cov=app --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ai-gaming-assistant-agent/coverage.xml
+          fail_ci_if_error: false
