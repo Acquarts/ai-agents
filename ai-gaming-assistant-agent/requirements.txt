@@ -1,0 +1,24 @@
+# Core ADK
+google-adk>=1.2.0
+
+# Streamlit UI
+streamlit>=1.32.0
+
+# FastAPI for Cloud Run
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+
+# Arize AX Observability
+openinference-instrumentation-google-adk>=0.1.0
+arize-otel>=0.7.0
+
+# YouTube Data API
+google-api-python-client>=2.100.0
+
+# Configuration
+python-dotenv>=1.0.0
+pydantic-settings>=2.2.0
+
+# Async support
+anyio>=4.3.0
+httpx>=0.27.0
