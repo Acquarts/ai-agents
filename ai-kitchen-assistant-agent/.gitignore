@@ -1,0 +1,29 @@
+# Environment files with secrets
+.env
+streamlit_app/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+nul
+
+# Keys
+*.json
+!openapi.yaml
+
+# Logs
+*.log

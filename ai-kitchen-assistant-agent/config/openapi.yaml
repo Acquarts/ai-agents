@@ -1,0 +1,221 @@
+openapi: 3.0.0
+info:
+  title: Food Image Analyzer
+  description: |
+    Analyzes food images using Google's Gemini Vision model and returns 
+    detailed ingredient lists with quantities and states.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: https://REGION-PROJECT_ID.cloudfunctions.net
+    description: Cloud Function endpoint
+    variables:
+      region:
+        default: us-central1
+        description: GCP region where function is deployed
+      projectId:
+        default: your-project-id
+        description: Your GCP project ID
+
+paths:
+  /analyze-food-image:
+    post:
+      operationId: analyzeFoodImage
+      summary: Analyze food image from GCS URI or public URL
+      description: |
+        Takes a Google Cloud Storage URI (gs://...) or public image URL and 
+        returns a detailed analysis of visible ingredients, their quantities, 
+        and states (raw, cooked, fresh, etc.).
+        
+        Supported image formats: JPEG, PNG, WebP, GIF
+        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - image_uri
+              properties:
+                image_uri:
+                  type: string
+                  description: |
+                    Google Cloud Storage URI (gs://bucket/image.jpg) or 
+                    public HTTPS URL of the food image to analyze
+                  example: gs://my-bucket/food-image.jpg
+                detail_level:
+                  type: string
+                  description: Level of detail in the analysis
+                  enum:
+                    - basic
+                    - detailed
+                  default: detailed
+                  example: detailed
+            examples:
+              gcs_uri:
+                summary: Using GCS URI
+                value:
+                  image_uri: gs://my-bucket/food-image.jpg
+                  detail_level: detailed
+              public_url:
+                summary: Using public URL
+                value:
+                  image_uri: https://storage.googleapis.com/my-bucket/food-image.jpg
+                  detail_level: basic
+
+      responses:
+        '200':
+          description: Successful image analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingredients:
+                    type: string
+                    description: |
+                      Detailed analysis of ingredients. For 'detailed' level, 
+                      includes structured list with quantities and states. 
+                      For 'basic' level, comma-separated list.
+                  image_uri:
+                    type: string
+                    description: The image URI that was analyzed
+                  detail_level:
+                    type: string
+                    description: The detail level used for analysis
+                  model:
+                    type: string
+                    description: The AI model used for analysis
+                  status:
+                    type: string
+                    description: Status of the operation
+                    example: success
+                  structured_data:
+                    type: object
+                    description: Structured parsing of ingredients (detailed mode only)
+                    properties:
+                      count:
+                        type: integer
+                        description: Number of ingredients identified
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            details:
+                              type: string
+              examples:
+                detailed_response:
+                  summary: Detailed analysis response
+                  value:
+                    ingredients: |
+                      INGREDIENTS IDENTIFIED:
+                      - Tomatoes: 3-4 pieces - fresh, red, ripe
+                      - Pasta: ~200g visible - dry, uncooked, spaghetti
+                      - Garlic: 2-3 cloves - fresh, peeled
+                      - Olive oil: small amount visible - extra virgin
+                      - Basil: several leaves - fresh, green
+                    image_uri: gs://my-bucket/food-image.jpg
+                    detail_level: detailed
+                    model: gemini-3-flash-preview
+                    status: success
+                    structured_data:
+                      count: 5
+                      items:
+                        - name: Tomatoes
+                          details: 3-4 pieces - fresh, red, ripe
+                        - name: Pasta
+                          details: ~200g visible - dry, uncooked, spaghetti
+                basic_response:
+                  summary: Basic analysis response
+                  value:
+                    ingredients: tomatoes, pasta, garlic, olive oil, basil
+                    image_uri: gs://my-bucket/food-image.jpg
+                    detail_level: basic
+                    model: gemini-3-flash-preview
+                    status: success
+
+        '400':
+          description: Bad request - Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error type
+                  message:
+                    type: string
+                    description: Detailed error message
+                  usage:
+                    type: string
+                    description: Usage instructions
+              example:
+                error: Missing required parameter
+                message: image_uri is required
+                usage: 'POST with JSON: {"image_uri": "gs://bucket/image.jpg"}'
+
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+                  status:
+                    type: string
+              example:
+                error: Internal server error
+                message: Failed to process image
+                status: failed
+
+components:
+  schemas:
+    AnalysisRequest:
+      type: object
+      required:
+        - image_uri
+      properties:
+        image_uri:
+          type: string
+          format: uri
+        detail_level:
+          type: string
+          enum: [basic, detailed]
+
+    AnalysisResponse:
+      type: object
+      properties:
+        ingredients:
+          type: string
+        image_uri:
+          type: string
+        detail_level:
+          type: string
+        model:
+          type: string
+        status:
+          type: string
+        structured_data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        status:
+          type: string

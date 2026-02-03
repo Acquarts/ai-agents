@@ -1,0 +1,12 @@
+# Google ADK and Vertex AI
+google-adk>=0.1.0
+google-cloud-aiplatform>=1.38.0
+vertexai>=1.0.0
+
+# Additional tools
+google-cloud-storage>=2.10.0
+requests>=2.31.0
+
+# Development and testing
+python-dotenv>=1.0.0
+pytest>=7.4.0
