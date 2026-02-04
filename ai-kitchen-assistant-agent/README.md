@@ -122,7 +122,8 @@ An AI system that:
 - Cloud Storage for temporary images
 
 **AI Models:**
-- Gemini 3 Flash for vision and generation
+- Gemini 2.0 Flash for vision analysis
+- Gemini 3 Flash for Agent Engine (recipe generation)
 
 ---
 
@@ -447,7 +448,7 @@ from vertexai.generative_models import GenerativeModel, Part
 
 # Initialize
 vertexai.init(project="YOUR_PROJECT", location="us-central1")
-model = GenerativeModel("gemini-3-flash-preview")
+model = GenerativeModel("gemini-2.0-flash")  # Use 2.0-flash for direct API calls
 
 # Analyze image
 image = Part.from_uri("gs://bucket/food.jpg", mime_type="image/jpeg")

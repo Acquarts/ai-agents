@@ -32,8 +32,7 @@ from config import (
     PROJECT_ID,
     REGION,
     BUCKET_NAME,
-    AGENT_ID,
-    MODEL_NAME
+    AGENT_ID
 )
 
 # Page config
@@ -172,9 +171,9 @@ def analyze_food_image(image_file):
             
             st.success(f"✅ Image uploaded: {gs_uri}")
             
-            # Initialize Gemini model
+            # Initialize Gemini model (use 2.0-flash for vision - stable and available)
             st.info("🤖 Initializing Gemini Vision model...")
-            model = GenerativeModel(MODEL_NAME)
+            model = GenerativeModel("gemini-2.0-flash")
             
             # Load image - fix mime type
             mime_type = image_file.type
@@ -381,9 +380,9 @@ def generate_recipes_direct(ingredients_text, cuisine):
     """Fallback: Generate recipes using direct Gemini call"""
     try:
         st.info("🤖 Using Gemini model directly...")
-        
-        # Use direct Gemini call
-        model = GenerativeModel(MODEL_NAME)
+
+        # Use direct Gemini call (gemini-2.0-flash is stable and available)
+        model = GenerativeModel("gemini-2.0-flash")
         
         agent_prompt = f"""You are an expert chef specializing in {cuisine} cuisine.
 
