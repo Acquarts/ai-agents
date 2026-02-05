@@ -21,7 +21,7 @@ Complete AI-powered multi-agent system with web UI where users upload ingredient
 
 ---
 
-DEMO LIVE: https://recipe-ai-app-562289298058.us-central1.run.app/
+DEMO LIVE: https://recipe-ai-app-p3n5xqoucq-uc.a.run.app/
 
 ## 📋 Table of Contents
 
