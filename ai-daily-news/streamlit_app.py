@@ -62,10 +62,34 @@ def format_date_es(iso: str | None) -> str:
 # --- Page config ---
 st.set_page_config(page_title="AI News Daily", page_icon="🤖", layout="wide")
 
-# --- Check DB exists ---
+# --- Ensure DB exists ---
 if not DB_PATH.exists():
-    st.error("Base de datos no encontrada. Ejecuta primero: `python agents/run_pipeline.py`")
-    st.stop()
+    DB_PATH.parent.mkdir(exist_ok=True)
+    with sqlite3.connect(str(DB_PATH)) as conn:
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS articles (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                source_name     TEXT NOT NULL,
+                source_url      TEXT NOT NULL,
+                title           TEXT NOT NULL,
+                original_url    TEXT NOT NULL UNIQUE,
+                published_at    TEXT,
+                fetched_at      TEXT NOT NULL,
+                summary         TEXT,
+                category        TEXT,
+                importance      TEXT,
+                raw_content     TEXT
+            );
+            CREATE TABLE IF NOT EXISTS runs (
+                id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+                started_at          TEXT NOT NULL,
+                finished_at         TEXT,
+                articles_fetched    INTEGER DEFAULT 0,
+                articles_summarized INTEGER DEFAULT 0,
+                status              TEXT,
+                error_message       TEXT
+            );
+        """)
 
 # --- Header ---
 st.title("🤖 AI News Daily")
