@@ -1,83 +1,83 @@
 # AI Daily News
 
-Pipeline automatizado de noticias de inteligencia artificial. Recopila articulos de multiples fuentes RSS, los resume con Claude (Haiku) y los presenta en un dashboard Streamlit.
+Automated AI news pipeline. Collects articles from multiple RSS sources, summarizes them with Claude (Haiku), and displays them in a Streamlit dashboard.
 
-## Arquitectura
+## Architecture
 
 ```
 agents/
-  sources.py          # Fuentes RSS (HuggingFace, ArXiv, OpenAI, Google AI, etc.)
-  news_fetcher.py     # Fetch concurrente de feeds RSS
-  summarizer.py       # Resumenes con Claude API (Haiku 4.5)
-  storage_agent.py    # Persistencia en SQLite
-  orchestrator.py     # Orquesta el pipeline completo
-  run_pipeline.py     # Entry point del pipeline
+  sources.py          # RSS sources (HuggingFace, ArXiv, OpenAI, Google AI, etc.)
+  news_fetcher.py     # Concurrent RSS feed fetching
+  summarizer.py       # Summaries via Claude API (Haiku 4.5)
+  storage_agent.py    # SQLite persistence
+  orchestrator.py     # Orchestrates the full pipeline
+  run_pipeline.py     # Pipeline entry point
 
 scheduler/
-  register_task.py    # Tarea programada (Windows Task Scheduler)
+  register_task.py    # Scheduled task (Windows Task Scheduler)
 
-streamlit_app.py      # Dashboard web
-db/news.db            # Base de datos SQLite (se crea automaticamente)
+streamlit_app.py      # Web dashboard
+db/news.db            # SQLite database (created automatically)
 ```
 
-## Requisitos
+## Requirements
 
 - Python 3.12+
-- API key de Anthropic
+- Anthropic API key
 
-## Instalacion
+## Installation
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Crear un archivo `.env` en la raiz del proyecto:
+Create a `.env` file in the project root:
 
 ```
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-## Uso
+## Usage
 
-### Ejecutar el pipeline
+### Run the pipeline
 
 ```bash
 python agents/run_pipeline.py
 ```
 
-Esto hace:
-1. Fetch de articulos de 9 fuentes RSS (HuggingFace, ArXiv, MIT Tech Review, VentureBeat, The Verge, OpenAI, Google AI, DeepMind, Towards Data Science)
-2. Guarda articulos nuevos en SQLite
-3. Resume con Claude Haiku los articulos sin resumen
-4. Clasifica por categoria (Research, Products, Industry, Tooling) e importancia (high, medium, low)
+This will:
+1. Fetch articles from 9 RSS sources (HuggingFace, ArXiv, MIT Tech Review, VentureBeat, The Verge, OpenAI, Google AI, DeepMind, Towards Data Science)
+2. Save new articles to SQLite
+3. Summarize unsummarized articles with Claude Haiku
+4. Classify by category (Research, Products, Industry, Tooling) and importance (high, medium, low)
 
-### Ver el dashboard
+### View the dashboard
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-### Programar ejecucion diaria (Windows)
+### Schedule daily execution (Windows)
 
 ```bash
 python scheduler/register_task.py
 ```
 
-Registra una tarea en Windows Task Scheduler que ejecuta el pipeline todos los dias a las 7:00 AM.
+Registers a Windows Task Scheduler job that runs the pipeline every day at 7:00 AM.
 
-## Deploy en Streamlit Cloud
+## Deploy to Streamlit Cloud
 
-1. Subir el repositorio a GitHub
-2. Ir a [share.streamlit.io](https://share.streamlit.io)
-3. Conectar el repo y seleccionar `streamlit_app.py`
-4. Configurar el secret `ANTHROPIC_API_KEY` en la configuracion de la app
+1. Push the repository to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io)
+3. Connect the repo and select `streamlit_app.py`
+4. Set the `ANTHROPIC_API_KEY` secret in the app settings
 
-> **Nota:** Streamlit Cloud usa almacenamiento efimero. Para produccion, considera usar una base de datos externa (PostgreSQL, Supabase, etc.) en lugar de SQLite.
+> **Note:** Streamlit Cloud uses ephemeral storage. For production, consider using an external database (PostgreSQL, Supabase, etc.) instead of SQLite.
 
 ## Stack
 
-- **Claude Haiku 4.5** — resumenes y clasificacion de articulos
-- **Streamlit** — dashboard web
-- **SQLite** — almacenamiento local
-- **feedparser** — parsing de RSS
-- **Anthropic SDK** — cliente de la API de Claude
+- **Claude Haiku 4.5** — article summarization and classification
+- **Streamlit** — web dashboard
+- **SQLite** — local storage
+- **feedparser** — RSS parsing
+- **Anthropic SDK** — Claude API client
