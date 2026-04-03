@@ -1,5 +1,11 @@
 # AI Daily News
 
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
+![Anthropic](https://img.shields.io/badge/Claude-Haiku_4.5-D4A574?logo=anthropic&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.45+-FF4B4B?logo=streamlit&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
+![License](https://img.shields.io/github/license/Acquarts/ai-agents)
+
 Automated AI news pipeline. Collects articles from multiple RSS sources, summarizes them with Claude (Haiku), and displays them in a Streamlit dashboard.
 
 ## Architecture
