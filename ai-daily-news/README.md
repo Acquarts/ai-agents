@@ -8,6 +8,8 @@
 
 Real-time AI news curator. Fetches articles from multiple RSS sources and uses Claude to select and summarize the 15 most relevant stories of the day.
 
+DEMO LIVE: https://ai-news-agent-01.streamlit.app/
+
 ## How it works
 
 1. User opens the dashboard
