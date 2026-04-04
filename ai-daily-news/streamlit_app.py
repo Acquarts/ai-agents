@@ -31,12 +31,12 @@ def get_articles(date: str) -> list[dict]:
         rows = conn.execute(
             """
             SELECT * FROM articles
-            WHERE fetched_at LIKE ? AND summary IS NOT NULL
+            WHERE DATE(published_at) = ? AND summary IS NOT NULL
             ORDER BY
                 CASE importance WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
                 published_at DESC
             """,
-            (f"{date}%",),
+            (date,),
         ).fetchall()
     return [dict(r) for r in rows]
 
