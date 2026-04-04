@@ -1,63 +1,51 @@
-from .storage_agent import StorageAgent, init_db
+from datetime import datetime, timezone
+
 from .news_fetcher import NewsFetcherAgent
 from .summarizer import SummarizerAgent
+from .storage_agent import StorageAgent, init_db
 
 
 class OrchestratorAgent:
     def __init__(self):
-        self.storage = StorageAgent()
         self.fetcher = NewsFetcherAgent()
         self.summarizer = SummarizerAgent()
+        self.storage = StorageAgent()
 
-    def run(self):
-        print("[orchestrator] Initializing database...")
+    def run(self, top_n: int = 15) -> list[dict]:
+        """Fetch, curate, and return today's top articles.
+
+        Returns cached results if already run today.
+        """
         init_db()
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-        print("[orchestrator] Starting pipeline run...")
-        run_id = self.storage.start_run()
+        # Check cache: did we already fetch today?
+        cached = self.storage.get_articles_fetched_on(today)
+        if cached:
+            print(f"[orchestrator] Returning {len(cached)} cached articles for {today}")
+            return cached
 
-        try:
-            # Step 1: Fetch news
-            print("[orchestrator] Fetching articles...")
-            raw_articles = self.fetcher.fetch_all()
-            articles_fetched = len(raw_articles)
-            print(f"[orchestrator] Fetched {articles_fetched} articles")
+        # Fetch
+        print("[orchestrator] Fetching articles...")
+        raw_articles = self.fetcher.fetch_all()
+        if not raw_articles:
+            print("[orchestrator] No articles found")
+            return []
 
-            # Step 2: Save raw articles
-            saved = self.storage.save_articles(raw_articles)
-            print(f"[orchestrator] Saved {saved} new articles to DB")
+        # Select & summarize in one Claude call
+        print(f"[orchestrator] Selecting top {top_n} from {len(raw_articles)} articles...")
+        curated = self.summarizer.select_and_summarize(raw_articles, top_n=top_n)
+        print(f"[orchestrator] Got {len(curated)} curated articles")
 
-            # Step 3: Get unsummarized articles
-            unsummarized = self.storage.get_unsummarized(limit=80)
-            print(f"[orchestrator] {len(unsummarized)} articles need summarization")
-
-            # Step 4: Summarize
-            articles_summarized = 0
-            if unsummarized:
-                print("[orchestrator] Summarizing with Claude...")
-                summarized = self.summarizer.summarize_batch(unsummarized)
-
-                for art in summarized:
-                    if art.get("summary"):
-                        self.storage.update_summary(
-                            art["id"],
-                            art["summary"],
-                            art["category"],
-                            art["importance"],
-                        )
-                        articles_summarized += 1
-
-                print(f"[orchestrator] Summarized {articles_summarized} articles")
-
+        # Save to DB
+        if curated:
+            self.storage.save_articles(curated)
+            run_id = self.storage.start_run()
             self.storage.finish_run(
                 run_id,
                 status="success",
-                articles_fetched=articles_fetched,
-                articles_summarized=articles_summarized,
+                articles_fetched=len(raw_articles),
+                articles_summarized=len(curated),
             )
-            print("[orchestrator] Pipeline completed successfully")
 
-        except Exception as e:
-            print(f"[orchestrator] Pipeline failed: {e}")
-            self.storage.finish_run(run_id, status="error", error_message=str(e))
-            raise
+        return curated

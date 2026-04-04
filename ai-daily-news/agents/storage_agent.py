@@ -53,8 +53,10 @@ class StorageAgent:
                     conn.execute(
                         """
                         INSERT INTO articles
-                            (source_name, source_url, title, original_url, published_at, fetched_at, raw_content)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                            (source_name, source_url, title, original_url,
+                             published_at, fetched_at, raw_content,
+                             summary, category, importance)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ON CONFLICT(original_url) DO NOTHING
                         """,
                         (
@@ -65,6 +67,9 @@ class StorageAgent:
                             art.get("published_at"),
                             art["fetched_at"],
                             art.get("raw_content", ""),
+                            art.get("summary"),
+                            art.get("category"),
+                            art.get("importance"),
                         ),
                     )
                     if conn.execute("SELECT changes()").fetchone()[0] > 0:
@@ -88,6 +93,21 @@ class StorageAgent:
             ).fetchall()
         return [dict(r) for r in rows]
 
+    def get_articles_fetched_on(self, date: str) -> list[dict]:
+        """Get articles that were fetched on a given date (for cache check)."""
+        with get_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM articles
+                WHERE DATE(fetched_at) = ? AND summary IS NOT NULL
+                ORDER BY
+                    CASE importance WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
+                    published_at DESC
+                """,
+                (date,),
+            ).fetchall()
+        return [dict(r) for r in rows]
+
     def get_articles_for_date(self, date: str | None = None) -> list[dict]:
         if date is None:
             date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -95,12 +115,12 @@ class StorageAgent:
             rows = conn.execute(
                 """
                 SELECT * FROM articles
-                WHERE fetched_at LIKE ? AND summary IS NOT NULL
+                WHERE DATE(published_at) = ? AND summary IS NOT NULL
                 ORDER BY
                     CASE importance WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
                     published_at DESC
                 """,
-                (f"{date}%",),
+                (date,),
             ).fetchall()
         return [dict(r) for r in rows]
 

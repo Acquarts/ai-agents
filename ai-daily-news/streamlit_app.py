@@ -1,10 +1,12 @@
-import sqlite3
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+import sys
+import os
+from datetime import datetime, timezone
 
 import streamlit as st
 
-DB_PATH = Path(__file__).parent / "db" / "news.db"
+# Ensure agents package is importable
+sys.path.insert(0, os.path.dirname(__file__))
+from agents.orchestrator import OrchestratorAgent
 
 CATEGORY_COLORS = {
     "Research": "blue",
@@ -20,35 +22,6 @@ IMPORTANCE_LABELS = {
 }
 
 
-def get_connection() -> sqlite3.Connection:
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def get_articles(date: str) -> list[dict]:
-    with get_connection() as conn:
-        rows = conn.execute(
-            """
-            SELECT * FROM articles
-            WHERE DATE(published_at) = ? AND summary IS NOT NULL
-            ORDER BY
-                CASE importance WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
-                published_at DESC
-            """,
-            (date,),
-        ).fetchall()
-    return [dict(r) for r in rows]
-
-
-def get_latest_run() -> dict | None:
-    with get_connection() as conn:
-        row = conn.execute(
-            "SELECT * FROM runs ORDER BY id DESC LIMIT 1"
-        ).fetchone()
-    return dict(row) if row else None
-
-
 def format_date_es(iso: str | None) -> str:
     if not iso:
         return ""
@@ -61,93 +34,28 @@ def format_date_es(iso: str | None) -> str:
 
 # --- Page config ---
 st.set_page_config(page_title="AI News Daily", page_icon="🤖", layout="wide")
-
-# --- Ensure DB exists ---
-if not DB_PATH.exists():
-    DB_PATH.parent.mkdir(exist_ok=True)
-    with sqlite3.connect(str(DB_PATH)) as conn:
-        conn.executescript("""
-            CREATE TABLE IF NOT EXISTS articles (
-                id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                source_name     TEXT NOT NULL,
-                source_url      TEXT NOT NULL,
-                title           TEXT NOT NULL,
-                original_url    TEXT NOT NULL UNIQUE,
-                published_at    TEXT,
-                fetched_at      TEXT NOT NULL,
-                summary         TEXT,
-                category        TEXT,
-                importance      TEXT,
-                raw_content     TEXT
-            );
-            CREATE TABLE IF NOT EXISTS runs (
-                id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-                started_at          TEXT NOT NULL,
-                finished_at         TEXT,
-                articles_fetched    INTEGER DEFAULT 0,
-                articles_summarized INTEGER DEFAULT 0,
-                status              TEXT,
-                error_message       TEXT
-            );
-        """)
-
-# --- Header ---
 st.title("🤖 AI News Daily")
 
-# --- Date selector ---
-today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-dates = {}
-for offset in range(0, 7):
-    d = datetime.now(timezone.utc) - timedelta(days=offset)
-    d_str = d.strftime("%Y-%m-%d")
-    if offset == 0:
-        label = "Hoy"
-    elif offset == 1:
-        label = "Ayer"
-    else:
-        label = d.strftime("%a %d")
-    dates[label] = d_str
+# --- Fetch articles (cached for the session / day) ---
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_today_news():
+    agent = OrchestratorAgent()
+    return agent.run(top_n=15)
 
-cols = st.columns(len(dates))
-if "selected_date" not in st.session_state:
-    st.session_state.selected_date = today
 
-for col, (label, d_str) in zip(cols, dates.items()):
-    with col:
-        if st.button(
-            label,
-            key=f"date_{d_str}",
-            use_container_width=True,
-            type="primary" if st.session_state.selected_date == d_str else "secondary",
-        ):
-            st.session_state.selected_date = d_str
-            st.rerun()
-
-selected_date = st.session_state.selected_date
-
-# --- Run info ---
-run_info = get_latest_run()
-if run_info:
-    status_icon = "🟢" if run_info["status"] == "success" else "🔴"
-    finished = run_info.get("finished_at", "")
-    finished_str = format_date_es(finished) if finished else "en progreso"
-    st.caption(
-        f"{status_icon} Última actualización: {finished_str} · "
-        f"{run_info.get('articles_fetched', 0)} recuperados · "
-        f"{run_info.get('articles_summarized', 0)} resumidos"
-    )
-
-# --- Load articles ---
-articles = get_articles(selected_date)
+with st.spinner("Buscando las noticias más relevantes de hoy..."):
+    articles = get_today_news()
 
 if not articles:
-    st.divider()
-    st.markdown(f"### 📰 No news for {selected_date}")
+    st.info("No se encontraron noticias de IA hoy. Inténtalo más tarde.")
     st.stop()
 
 # --- Stats ---
+now = datetime.now(timezone.utc)
+st.caption(f"🟢 {len(articles)} noticias curadas · {now.strftime('%d %b %Y, %H:%M')} UTC")
+
 high_count = sum(1 for a in articles if a.get("importance") == "high")
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 col1.metric("Noticias", len(articles))
 if high_count:
     col2.metric("Alta importancia", high_count)
@@ -187,20 +95,21 @@ for i in range(0, len(filtered), cols_per_row):
             cat_color = CATEGORY_COLORS.get(category, "gray")
 
             with st.container(border=True):
-                # Tags row
                 imp_label = IMPORTANCE_LABELS.get(importance, importance)
                 st.markdown(f"{imp_label} &nbsp; :{cat_color}[{category}]")
-
-                # Title
                 st.markdown(f"**[{article['title']}]({article['original_url']})**")
-
-                # Summary
                 if article.get("summary"):
                     st.caption(article["summary"])
-
-                # Footer
-                pub_date = format_date_es(article.get("published_at") or article.get("fetched_at"))
+                pub_date = format_date_es(
+                    article.get("published_at") or article.get("fetched_at")
+                )
                 st.markdown(
                     f"<small style='color:gray'>{article['source_name']} · {pub_date}</small>",
                     unsafe_allow_html=True,
                 )
+
+# --- Refresh button ---
+st.divider()
+if st.button("🔄 Actualizar noticias", use_container_width=True):
+    st.cache_data.clear()
+    st.rerun()
