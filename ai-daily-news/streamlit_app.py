@@ -142,11 +142,7 @@ articles = get_articles(selected_date)
 
 if not articles:
     st.divider()
-    st.markdown(
-        f"### 📰 Sin noticias para {selected_date}\n\n"
-        "El pipeline se ejecuta diariamente. Para ejecutarlo manualmente:\n\n"
-        "```\npython agents/run_pipeline.py\n```"
-    )
+    st.markdown(f"### 📰 No news for {selected_date}")
     st.stop()
 
 # --- Stats ---
